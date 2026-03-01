@@ -1,0 +1,20 @@
+{
+    "demoLogin": {
+        "name": "demoLogin",
+        "selector": "text=demoLogin",
+        "description": "Login button on demo page",
+        "ocrText": "demoLogin",
+        "lastHealed": "2026-03-01T06:37:48.542Z",
+        "confidence": 0.6
+    },
+    "wikiSearchInput": {
+        "name": "wikiSearchInput",
+        "selector": "input[name=\"search\"]",
+        "description": "Wikipedia Search Input"
+    },
+    "wikiSearchButton": {
+        "name": "wikiSearchButton",
+        "selector": "button[type=\"submit\"]",
+        "description": "Wikipedia Search Button"
+    }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "nextgenfeats",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node scripts/run-tests-with-report.js",
+    "test:noReport": "npx bddgen && npx playwright test",
+    "test:report": "npx bddgen && npx playwright test && node scripts/open-report.js",
+    "test:dev": "set ENV=dev && node scripts/run-tests-with-report.js",
+    "test:dev:noReport": "set ENV=dev && npx bddgen && npx playwright test",
+    "test:staging": "set ENV=staging && node scripts/run-tests-with-report.js",
+    "test:staging:noReport": "set ENV=staging && npx bddgen && npx playwright test",
+    "bddgen": "npx bddgen",
+    "report": "node scripts/open-report.js",
+    "clean": "npx rimraf reports .features-gen logs error.log",
+    "generate-pom": "ts-node POM/generate.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.5.0",
+    "@playwright/test": "^1.57.0",
+    "dotenv": "^17.2.3",
+    "jimp": "^1.6.0",
+    "opencv-wasm": "^4.3.0-10",
+    "playwright-bdd": "^8.4.2",
+    "tesseract.js": "^7.0.0",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "log4js": "^6.9.1"
+  }
+}
