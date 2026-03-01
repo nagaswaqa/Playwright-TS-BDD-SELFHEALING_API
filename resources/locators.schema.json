@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Self-Healing Locator Repository",
+    "type": "object",
+    "additionalProperties": {
+        "type": "object",
+        "required": [
+            "name",
+            "selector"
+        ],
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "The logical/business name of the locator used in tests."
+            },
+            "selector": {
+                "type": "string",
+                "description": "The primary CSS or XPath selector."
+            },
+            "description": {
+                "type": "string",
+                "description": "A human-readable description of what the element is."
+            },
+            "ocrText": {
+                "type": "string",
+                "description": "Expected text content for OCR-based healing."
+            },
+            "lastHealed": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp of the last successful healing event."
+            },
+            "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "The reliability score of the current selector (0 to 1)."
+            }
+        }
+    }
+}

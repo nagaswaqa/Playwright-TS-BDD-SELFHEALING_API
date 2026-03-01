@@ -15,6 +15,10 @@ const demoConstants = {
     loginButton: '#wrong-id', // INTENTIONALLY BROKEN to trigger healing
     successMessage: '#success-message',
     usernameInput: '#username-input',
+    reactTab: '#tab-react',
+    reactIncrementBtn: '#react-increment-btn',
+    reactResetBtn: '#react-reset-btn',
+    reactCounterValue: '#react-counter div:nth-child(2)',
   },
   locatorNames: {
     loginButton: 'demoLogin',
@@ -127,5 +131,46 @@ export class DemoPage extends SelfHealingBasePage {
   async fillUsername(username: string): Promise<void> {
     console.log(`[DemoPage] Filling username: ${username}`);
     await this.page.fill(demoConstants.selectors.usernameInput, username);
+  }
+
+  /**
+   * Click on the React tab
+   */
+  async clickReactTab(): Promise<void> {
+    console.log('[DemoPage] Clicking React tab');
+    await this.page.click(demoConstants.selectors.reactTab);
+  }
+
+  /**
+   * Click the React increment button
+   */
+  async clickReactIncrement(): Promise<void> {
+    console.log('[DemoPage] Clicking React increment button');
+    await this.page.click(demoConstants.selectors.reactIncrementBtn);
+  }
+
+  /**
+   * Click the React reset button
+   */
+  async clickReactReset(): Promise<void> {
+    console.log('[DemoPage] Clicking React reset button');
+    await this.page.click(demoConstants.selectors.reactResetBtn);
+  }
+
+  /**
+   * Get the current value of the React counter
+   */
+  async getReactCounterValue(): Promise<string> {
+    const value = await this.page.textContent(demoConstants.selectors.reactCounterValue);
+    console.log(`[DemoPage] React counter value: ${value?.trim()}`);
+    return value?.trim() || '';
+  }
+
+  /**
+   * Verify if the demo page is open by checking the title
+   */
+  async isPageOpen(): Promise<boolean> {
+    const title = await this.page.title();
+    return title.includes('Self-Healing Demo');
   }
 }

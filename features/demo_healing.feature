@@ -19,3 +19,13 @@ Feature: Self-Healing Demo - Button Click with Recovery
     When I check the login button state with healing
     Then the button state should indicate it is clickable
     And the button should have the correct ID attribute
+
+  @demo @react
+  Scenario: Verify React counter functionality
+    Given I navigate to the demo page
+    Then the demo page should be open
+    When I click on the React tab
+    And I click the React increment button
+    Then the React counter should display "1"
+    When I click the React reset button
+    Then the React counter should display "0"

@@ -192,3 +192,46 @@ When('I highlight the login button', async function (this: any, { page }: any) {
 
   console.log('[Steps] Login button highlighted');
 });
+
+/**
+ * Verify the demo page is open
+ */
+Then('the demo page should be open', async function (this: any) {
+  testContextStorage.enterWith(this);
+  console.log('[Steps] Verifying demo page is open');
+  const isOpen = await demoPage.isPageOpen();
+  expect(isOpen).toBe(true);
+});
+
+/**
+ * Click on the React tab
+ */
+When('I click on the React tab', async function (this: any) {
+  testContextStorage.enterWith(this);
+  await demoPage.clickReactTab();
+});
+
+/**
+ * Click the React increment button
+ */
+When('I click the React increment button', async function (this: any) {
+  testContextStorage.enterWith(this);
+  await demoPage.clickReactIncrement();
+});
+
+/**
+ * Verify the React counter display value
+ */
+Then('the React counter should display {string}', async function (this: any, { }: any, expectedValue: string) {
+  testContextStorage.enterWith(this);
+  const actualValue = await demoPage.getReactCounterValue();
+  expect(actualValue).toBe(expectedValue);
+});
+
+/**
+ * Click the React reset button
+ */
+When('I click the React reset button', async function (this: any) {
+  testContextStorage.enterWith(this);
+  await demoPage.clickReactReset();
+});
