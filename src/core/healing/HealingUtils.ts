@@ -1,50 +1,42 @@
 import { Page } from '@playwright/test';
 import { HealingEngine } from './HealingEngine';
-import { ApiHealingEngine } from './ApiHealingEngine';
 import { LocatorRepository } from './LocatorRepository';
 import { AuditLogger } from './AuditLogger';
 import { testConfig } from '../../config/testConfig';
 import { IHealingStrategy } from './strategies/IHealingStrategy';
 
 export let globalHealingEngine: HealingEngine | null = null;
-export let globalApiHealingEngine: ApiHealingEngine | null = null;
 
 /**
- * Configuration for the healing utilities
+ * Strategy names available for configuration.
+ * Use these in `strategyOrder`, `enabledStrategies`, or `disabledStrategies`.
  */
-export type StrategyName = 'DOM' | 'VISUAL' | 'OCR' | 'API';
+export type StrategyName = 'DOM' | 'VISUAL' | 'OCR' | 'LLM';
 
 export interface HealerConfig {
     resourcesPath?: string;
     auditLogDir?: string;
     enableAudit?: boolean;
-    apiHealingConfig?: {
-        maxRetries?: number;
-        retryDelayMs?: number;
-        backoffMultiplier?: number;
-    };
 
     /**
      * Optional ordering of strategies. The engine will instantiate and execute
      * strategies in the order provided. Any names not recognized will be ignored.
-     * If omitted, the default order is ['DOM','VISUAL','OCR','API'].
+     * Default order: ['DOM', 'VISUAL', 'OCR', 'LLM']
      */
     strategyOrder?: StrategyName[];
 
     /**
      * List of strategies to enable (subset of default or provided order).
-     * Useful when you want to disable a particular layer without re-ordering.
      */
     enabledStrategies?: StrategyName[];
 
     /**
-     * List of strategies to disable; these are removed from final order.
+     * List of strategies to disable; these are removed from the final order.
      */
     disabledStrategies?: StrategyName[];
 
     /**
-     * Pre-defined profiles with named strategy lists. Combined with `profile`
-     * field to switch between sets of healing behaviours (e.g. 'fast', 'full').
+     * Pre-defined profiles with named strategy lists.
      */
     strategyProfiles?: Record<string, StrategyName[]>;
 
@@ -59,25 +51,22 @@ export interface HealerConfig {
  */
 export async function initializeHealing(config: HealerConfig = {}): Promise<void> {
     const resourcesPath = config.resourcesPath || 'resources';
-    const auditLogDir = config.auditLogDir || './healing-logs';
-    const enableAudit = config.enableAudit !== false;
+    const auditLogDir   = config.auditLogDir || './healing-logs';
+    const enableAudit   = config.enableAudit !== false;
 
-    const repo = new LocatorRepository(resourcesPath);
+    const repo   = new LocatorRepository(resourcesPath);
     const logger = new AuditLogger(auditLogDir, enableAudit);
 
-    // create shared API healing engine early so we can inject it into the API strategy
-    globalApiHealingEngine = new ApiHealingEngine(config.apiHealingConfig || {}, logger);
-
-    // build default strategies in order, but honor optional config
+    // strategy factory map
     const defaultMap: Record<StrategyName, () => IHealingStrategy> = {
-        DOM: () => new (require('./strategies/DomHealingStrategy')).DomHealingStrategy(),
+        DOM:    () => new (require('./strategies/DomHealingStrategy')).DomHealingStrategy(),
         VISUAL: () => new (require('./strategies/VisualHealingStrategy')).VisualHealingStrategy(resourcesPath),
-        OCR: () => new (require('./strategies/OcrHealingStrategy')).OcrHealingStrategy(),
-        API: () => new (require('./strategies/ApiHealingStrategy')).ApiHealingStrategy(globalApiHealingEngine)
+        OCR:    () => new (require('./strategies/OcrHealingStrategy')).OcrHealingStrategy(),
+        LLM:    () => new (require('./strategies/LlmHealingStrategy')).LlmHealingStrategy()
     };
 
     // determine base order
-    let order: StrategyName[] = config.strategyOrder || ['DOM', 'VISUAL', 'OCR', 'API'];
+    let order: StrategyName[] = config.strategyOrder || ['DOM', 'VISUAL', 'OCR', 'LLM'];
 
     // apply profile override if specified
     if (config.profile && config.strategyProfiles && config.strategyProfiles[config.profile]) {
@@ -112,16 +101,6 @@ export async function getHealingEngine(): Promise<HealingEngine> {
         await initializeHealing();
     }
     return globalHealingEngine!;
-}
-
-/**
- * Get the global API healing engine (auto-initialize if needed)
- */
-export async function getApiHealingEngine(): Promise<ApiHealingEngine> {
-    if (!globalApiHealingEngine) {
-        await initializeHealing();
-    }
-    return globalApiHealingEngine!;
 }
 
 /**
@@ -180,23 +159,10 @@ export async function retryWithHealing<T>(
 }
 
 /**
- * Get healing statistics (convenience wrapper)
- */
-export async function getHealingStats() {
-    const engine = await getHealingEngine();
-    // Note: HealingEngine doesn't track stats yet, but could be extended
-    const apiEngine = await getApiHealingEngine();
-    return {
-        api: apiEngine.getSummary()
-    };
-}
-
-/**
- * Reset healing state (clear caches, etc.)
+ * Reset healing state (clear engine instance so it re-initializes next run)
  */
 export async function resetHealing(): Promise<void> {
     globalHealingEngine = null;
-    globalApiHealingEngine = null;
     console.log('[HealingUtils] Healing framework reset');
 }
 
@@ -218,7 +184,6 @@ export async function generateHealingReport(outputDir: string = './reports'): Pr
     const logFilePath = './healing-logs/healing-audit.log';
     const reporter = new HealingReporter(logFilePath);
 
-    // Generate both JSON and HTML reports
     reporter.exportAsJson(`${outputDir}/healing-report.json`);
     reporter.exportAsHtml(`${outputDir}/healing-report.html`);
 

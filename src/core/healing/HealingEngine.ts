@@ -7,7 +7,7 @@ import { IHealingStrategy } from './strategies/IHealingStrategy';
 import { DomHealingStrategy } from './strategies/DomHealingStrategy';
 import { VisualHealingStrategy } from './strategies/VisualHealingStrategy';
 import { OcrHealingStrategy } from './strategies/OcrHealingStrategy';
-import { ApiHealingStrategy } from './strategies/ApiHealingStrategy';
+import { LlmHealingStrategy } from './strategies/LlmHealingStrategy';
 
 export class HealingEngine {
     private strategies: IHealingStrategy[] = [];
@@ -23,7 +23,7 @@ export class HealingEngine {
             new DomHealingStrategy(),
             new VisualHealingStrategy(),
             new OcrHealingStrategy(),
-            new ApiHealingStrategy()
+            new LlmHealingStrategy()   // 🤖 GPT-4o vision — last resort
         ];
     }
 
